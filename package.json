@@ -13,11 +13,14 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@node-rs/argon2": "^2.0.2",
 		"@prisma/client": "^6.19.0",
+		"argon2": "^0.44.0",
 		"express": "^5.1.0",
 		"zod": "^4.1.12"
 	},
 	"devDependencies": {
+		"@types/argon2": "^0.14.1",
 		"@types/express": "^5.0.5",
 		"@types/node": "^24.10.1",
 		"prisma": "^6.19.0",
