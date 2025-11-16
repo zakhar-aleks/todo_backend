@@ -78,6 +78,10 @@ app.post("/api/auth/registration/", validate(User), async (req, res) => {
 	}
 });
 
+app.post("/api/auth/login/", (req, res) => {
+	res.status(200);
+});
+
 app.listen(port, () => {
 	console.log(`Server is up and running on port ${port}`);
 });
