@@ -2,9 +2,14 @@ import express from "express";
 import { PrismaClient } from "./generated/prisma";
 import { validate } from "./middleware/validate.js";
 import * as z from "zod";
-import * as argon2 from "@node-rs/argon2";
+import * as bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const SALT_ROUNDS = 10;
+const TOKEN_EXPIRY = "1d";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET;
 const app = express();
 const port: string | number = process.env.port || 3000;
 app.use(express.json());
@@ -12,22 +17,6 @@ app.use(express.json());
 interface PrismaClientError {
 	code: string;
 	message: string;
-}
-
-const isPrismaError = (error: unknown): error is PrismaClientError => {
-	return typeof error === "object" && error !== null && "code" in error;
-};
-
-async function hashPassword(plainPassword: string): Promise<string> {
-	try {
-		const hashedPassword: string = await argon2.hash(plainPassword);
-
-		return hashedPassword;
-	} catch (error) {
-		console.error("Error hashing password:", error);
-
-		throw new Error("Password hashing failed");
-	}
 }
 
 const User = z.object({
@@ -39,6 +28,33 @@ const User = z.object({
 		.regex(/[a-zA-Z]/),
 	avatar: z.url().nullish(),
 });
+
+const loginUser = z.object({
+	email: z.email().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+	password: z
+		.string()
+		.min(8)
+		.regex(/[a-zA-Z]/),
+});
+
+const isPrismaError = (error: unknown): error is PrismaClientError => {
+	return typeof error === "object" && error !== null && "code" in error;
+};
+
+async function hashPassword(plainPassword: string): Promise<string> {
+	try {
+		const hashedPassword: string = await bcrypt.hash(
+			plainPassword,
+			SALT_ROUNDS
+		);
+
+		return hashedPassword;
+	} catch (error) {
+		console.error("Error hashing password:", error);
+
+		throw new Error("Password hashing failed");
+	}
+}
 
 app.post("/api/auth/registration/", validate(User), async (req, res) => {
 	const { email, name, password, avatar } = req.body;
@@ -58,7 +74,21 @@ app.post("/api/auth/registration/", validate(User), async (req, res) => {
 			data: data,
 		});
 
-		res.status(201).json(newUser);
+		const { password, ...userWithoutPassword } = newUser;
+
+		const payload = {
+			id: newUser.id,
+			email: newUser.email,
+		};
+
+		const token = jwt.sign(payload, JWT_SECRET, {
+			expiresIn: TOKEN_EXPIRY,
+		});
+
+		res.status(201).json({
+			token: token,
+			user: userWithoutPassword,
+		});
 	} catch (error) {
 		if (isPrismaError(error) && error.code === "P2002") {
 			return res.status(409).json({
@@ -74,6 +104,55 @@ app.post("/api/auth/registration/", validate(User), async (req, res) => {
 		return res.status(500).json({
 			error: "An unexpected server error occurred.",
 			details: message,
+		});
+	}
+});
+
+app.post("/api/auth/login/", validate(loginUser), async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const user = await prisma.User.findUnique({
+			where: {
+				email: email,
+			},
+		});
+
+		if (user) {
+			const isMatch = await bcrypt.compare(password, user.password);
+
+			if (isMatch) {
+				const payload = {
+					id: user.id,
+					email: user.email,
+				};
+
+				const token = jwt.sign(payload, JWT_SECRET, {
+					expiresIn: TOKEN_EXPIRY,
+				});
+
+				return res.status(200).json({
+					token: token,
+					user: {
+						id: user.id,
+						email: user.email,
+						name: user.name,
+					},
+				});
+			} else {
+				res.status(401).json({
+					error: "User is not authorized",
+				});
+			}
+		} else {
+			res.status(401).json({
+				error: "User is not authorized",
+			});
+		}
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			error: "Internal server error",
 		});
 	}
 });
