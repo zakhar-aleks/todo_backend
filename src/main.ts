@@ -2,7 +2,9 @@ import express from "express";
 import { PrismaClient } from "./generated/prisma";
 import { validate } from "./middleware/validate.js";
 import * as z from "zod";
-import * as argon2 from "@node-rs/argon2";
+import * as bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
 
 const prisma = new PrismaClient();
 const app = express();
@@ -14,22 +16,6 @@ interface PrismaClientError {
 	message: string;
 }
 
-const isPrismaError = (error: unknown): error is PrismaClientError => {
-	return typeof error === "object" && error !== null && "code" in error;
-};
-
-async function hashPassword(plainPassword: string): Promise<string> {
-	try {
-		const hashedPassword: string = await argon2.hash(plainPassword);
-
-		return hashedPassword;
-	} catch (error) {
-		console.error("Error hashing password:", error);
-
-		throw new Error("Password hashing failed");
-	}
-}
-
 const User = z.object({
 	email: z.email().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
 	name: z.string().min(2),
@@ -39,6 +25,33 @@ const User = z.object({
 		.regex(/[a-zA-Z]/),
 	avatar: z.url().nullish(),
 });
+
+const loginUser = z.object({
+	email: z.email().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+	password: z
+		.string()
+		.min(8)
+		.regex(/[a-zA-Z]/),
+});
+
+const isPrismaError = (error: unknown): error is PrismaClientError => {
+	return typeof error === "object" && error !== null && "code" in error;
+};
+
+async function hashPassword(plainPassword: string): Promise<string> {
+	try {
+		const hashedPassword: string = await bcrypt.hash(
+			plainPassword,
+			SALT_ROUNDS
+		);
+
+		return hashedPassword;
+	} catch (error) {
+		console.error("Error hashing password:", error);
+
+		throw new Error("Password hashing failed");
+	}
+}
 
 app.post("/api/auth/registration/", validate(User), async (req, res) => {
 	const { email, name, password, avatar } = req.body;
@@ -78,8 +91,35 @@ app.post("/api/auth/registration/", validate(User), async (req, res) => {
 	}
 });
 
-app.post("/api/auth/login/", (req, res) => {
-	res.status(200);
+app.post("/api/auth/login/", validate(loginUser), async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const user = await prisma.User.findUnique({
+			where: {
+				email: email,
+			},
+		});
+
+		if (user) {
+			const isMatch = await bcrypt.compare(password, user.password);
+
+			isMatch
+				? res.status(200).json({})
+				: res.status(401).json({
+						error: "User is not authorized",
+				  });
+		} else {
+			res.status(401).json({
+				error: "User is not authorized",
+			});
+		}
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
 });
 
 app.listen(port, () => {
