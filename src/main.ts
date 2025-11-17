@@ -1,5 +1,5 @@
 import express from "express";
-import { PrismaClient } from "./generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { validate } from "./middleware/validate.js";
 import * as z from "zod";
 import * as bcrypt from "bcrypt";
@@ -7,11 +7,15 @@ import jwt from "jsonwebtoken";
 
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRY = "1d";
+const JWT_SECRET = process.env.JWT_SECRET;
+const port: string | number = process.env.port || 3000;
+
+if (!JWT_SECRET) {
+	throw new Error("JWT_SECRET environment variable is not set.");
+}
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET;
 const app = express();
-const port: string | number = process.env.port || 3000;
 app.use(express.json());
 
 interface PrismaClientError {
@@ -112,9 +116,16 @@ app.post("/api/auth/login/", validate(loginUser), async (req, res) => {
 	const { email, password } = req.body;
 
 	try {
-		const user = await prisma.User.findUnique({
+		const user = await prisma.user.findUnique({
 			where: {
 				email: email,
+			},
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				password: true,
+				avatar: true,
 			},
 		});
 
