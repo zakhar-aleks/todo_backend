@@ -2,12 +2,13 @@
 	"name": "todo_backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "main.js",
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch src/main.ts",
 		"build": "tsc",
-		"start": "node dist/main.js"
+		"start": "node dist/main.js",
+		"start:local": "node -r dotenv/config dist/main.js"
 	},
 	"keywords": [],
 	"author": "",
@@ -24,6 +25,7 @@
 		"@types/express": "^5.0.5",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^24.10.1",
+		"dotenv": "^17.2.3",
 		"prisma": "^6.19.0",
 		"tsx": "^4.20.6",
 		"typescript": "^5.9.3"
