@@ -13,4 +13,4 @@ COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma 
 COPY --from=builder --chown=node:node /app/prisma ./prisma 
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
