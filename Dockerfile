@@ -8,6 +8,8 @@ RUN npm run build
 FROM node:23.10.0-alpine
 USER node 
 WORKDIR /app
+COPY --from=builder --chown=node:node /app/package.json .
+COPY --from=builder --chown=node:node /app/package-lock.json .
 COPY --from=builder --chown=node:node /app/dist ./dist 
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma 
