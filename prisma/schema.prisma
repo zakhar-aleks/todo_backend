@@ -12,5 +12,5 @@ model User {
   email    String  @unique
   name     String
   password String 
-  avatar   String?
+  avatar   String? @map("avatar_url")
 }
