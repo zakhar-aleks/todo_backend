@@ -1,6 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import authRoutes from "./routes/auth.routes.js";
+import cors from "cors";
 
 const port: string | number = process.env.port || 3000;
 const JWT_SECRET: string = process.env.JWT_SECRET! as string;
@@ -25,6 +26,7 @@ export const JWT_CONFIG: JWTConfig = {
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 app.use("/api/auth", authRoutes);
 
 app.listen(port, () => {
