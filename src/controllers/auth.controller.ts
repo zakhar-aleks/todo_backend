@@ -43,8 +43,6 @@ export const registerUser = async (req: Request, res: Response) => {
 	try {
 		const newUser = await prisma.user.create({ data: data });
 
-		const { password, ...userWithoutPassword } = newUser;
-
 		const payload = {
 			id: newUser.id,
 			email: newUser.email,
@@ -56,7 +54,6 @@ export const registerUser = async (req: Request, res: Response) => {
 
 		res.status(201).json({
 			token: token,
-			user: userWithoutPassword,
 		});
 	} catch (error) {
 		if (isPrismaError(error) && error.code === "P2002") {
@@ -112,11 +109,6 @@ export const loginUser = async (req: Request, res: Response) => {
 
 			return res.status(200).json({
 				token: token,
-				user: {
-					id: user.id,
-					email: user.email,
-					name: user.name,
-				},
 			});
 		} else {
 			return res.status(401).json({
