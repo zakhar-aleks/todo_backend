@@ -128,3 +128,119 @@ Invalid credentials.
 {  
  "error": "Internal server error"  
 }
+
+# **Profile Management API**
+
+### **Get user profile**
+
+**Method:** `GET` **Endpoint:** `/api/users/me` **Protected resource:** Yes
+
+#### **Responses**
+
+🟢 **200 OK**
+
+User profile retrieved successfully.
+
+JSON  
+{  
+ "email": "string",  
+ "name": "string",  
+ "avatar": "string (link)"  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
+
+---
+
+### **Update Profile**
+
+**Method:** `PUT` **Endpoint:** `/api/users/me` **Protected resource:** Yes
+
+#### **Request Body Parameters**
+
+| Field  | Type   | Required | Validation Rules                            |
+| :----- | :----- | :------- | :------------------------------------------ |
+| name   | String | Yes      | Minimum 2 characters.                       |
+| avatar | File   | No       | Allowed formats: jpg, jpeg, png, gif, webp. |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Profile updated successfully.
+
+JSON  
+{  
+ "email": "string",  
+ "name": "string",  
+ "avatar": "string (link)"  
+}
+
+🔴 **400 Bad Request**
+
+Validation failed.
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid username: minimum 2 characters",  
+ "Invalid avatar: allowed formats are jpg, jpeg, png, gif, webp"  
+ \]  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
+
+---
+
+### **Delete avatar**
+
+**Method:** `DELETE` **Endpoint:** `/api/users/me/avatar` **Protected resource:** Yes
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Avatar deleted successfully.
+
+JSON  
+{  
+ "deleted": true  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
