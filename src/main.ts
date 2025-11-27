@@ -1,6 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import cors from "cors";
 
 const port: string | number = process.env.port || 3000;
@@ -28,6 +29,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(port, () => {
 	console.log(`Server is up and running on port ${port}`);

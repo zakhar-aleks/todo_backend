@@ -5,10 +5,7 @@
 Create a `.env` file in the root directory with the following required variables:
 
 ```env
-POSTGRES_USER=your_user
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=your_db_name
-DATABASE_URL=postgresql://user:password@localhost:5432/db_name
+DATABASE_URL=file:./dev.db
 
 JWT_SECRET=your_jwt_secret
 PORT=3000
