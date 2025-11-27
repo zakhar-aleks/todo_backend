@@ -31,14 +31,12 @@ export const verifyToken = (
 		if (error instanceof TokenExpiredError) {
 			return res.status(401).json({
 				message: "User is not authorized",
-				expiredAt: error.expiredAt,
 			});
 		}
 
 		if (error instanceof JsonWebTokenError) {
 			return res.status(401).json({
 				message: "User is not authorized",
-				details: error.message,
 			});
 		}
 
