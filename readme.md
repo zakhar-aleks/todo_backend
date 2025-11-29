@@ -241,3 +241,169 @@ JSON
 {  
  "error": "Internal server error"  
 }
+
+# **Task Management API**
+
+### **Get Tasks**
+
+**Method:** GET **Endpoint:** /api/tasks **Protected resource:** Yes
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Tasks retrieved successfully.
+
+JSON  
+\[  
+ {  
+ "id": "12345",  
+ "title": "Complete Project Report",  
+ "description": "Finalize the Q4 analysis",  
+ "done": false,  
+ "files": \[  
+ {  
+ "id": "f1",  
+ "image": "https://api.example.com/uploads/chart.png"  
+ },  
+ {  
+ "id": "f2",  
+ "image": "https://api.example.com/uploads/data.csv"  
+ }  
+ \]  
+ }  
+\]
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
+
+---
+
+### **Create Task**
+
+**Method:** POST **Endpoint:** /api/tasks **Protected resource:** Yes
+
+#### **Request Body Parameters**
+
+| Field       | Type     | Required | Validation Rules                            |
+| :---------- | :------- | :------- | :------------------------------------------ |
+| title       | String   | Yes      | Minimum 2 characters.                       |
+| description | String   | No       | Task details.                               |
+| files       | File\[\] | No       | Allowed formats: jpg, jpeg, png, gif, webp. |
+
+####
+
+#### **Responses**
+
+🟢 **201 Created**
+
+Task created successfully.
+
+JSON  
+{  
+ "id": "67890",  
+ "title": "New Design Draft",  
+ "description": "Mockups for the landing page",  
+ "done": false,  
+ "files": \[  
+ {  
+ "id": "f3",  
+ "image": "https://api.example.com/uploads/mockup.jpg"  
+ }  
+ \]  
+}
+
+🔴 **400 Bad Request**
+
+Validation failed.
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid title: minimum 2 characters",  
+ "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"  
+ \]  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
+
+---
+
+### **Delete Task**
+
+**Method:** DELETE **Endpoint:** /api/tasks/{taskId} **Protected resource:** Yes
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Task deleted successfully.
+
+JSON  
+{  
+ "deleted": true  
+}
+
+🔴 **400 Bad Request**
+
+Validation failed.
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: taskId is required"  
+ \]  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+🔴 **404 Not Found**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: no task found with this taskId"  
+ \]  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}

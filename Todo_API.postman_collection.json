@@ -111,7 +111,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"johndoe@gmail.com\",\n    \"name\": \"John Doe\",\n    \"password\": \"password1234\"\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -215,6 +215,121 @@
 						"me",
 						"avatar",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Access-Token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5cUIAJ92_mbfpq7LlXM0Pt0dh5mymuJ8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://todo-backend-rpf2.onrender.com/api/tasks",
+					"protocol": "https",
+					"host": [
+						"todo-backend-rpf2",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Tasks",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Access-Token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5cUIAJ92_mbfpq7LlXM0Pt0dh5mymuJ8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "Example",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi porttitor aliquet odio et accumsan. Sed sagittis nisl non dui malesuada, in ullamcorper magna tincidunt.",
+							"type": "text"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": [
+								"/Users/zaharaleksandruk/Downloads/rift.jpeg",
+								"/Users/zaharaleksandruk/Downloads/gcc.png"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "https://todo-backend-rpf2.onrender.com/api/tasks",
+					"protocol": "https",
+					"host": [
+						"todo-backend-rpf2",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Task",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Access-Token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5cUIAJ92_mbfpq7LlXM0Pt0dh5mymuJ8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "taskId",
+							"value": "3b4ca3fb-1342-462b-a4fe-2bb861ccb113",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://todo-backend-rpf2.onrender.com/api/tasks/{taskId}",
+					"protocol": "https",
+					"host": [
+						"todo-backend-rpf2",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"tasks",
+						"{taskId}"
 					]
 				}
 			},
