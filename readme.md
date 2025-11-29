@@ -241,3 +241,156 @@ JSON
 {  
  "error": "Internal server error"  
 }
+
+# **📋 Task Management API**
+
+## **Authentication**
+
+All endpoints documented below are **protected resources**. Requests must include an authentication header (typically a Bearer token): `Authorization: Bearer <your_token>`
+
+---
+
+## **1\. Get Tasks**
+
+Retrieves a list of all tasks associated with the authenticated user.
+
+-   **Endpoint:** `/api/tasks`
+-   **Method:** `GET`
+
+### **✅ Success Response**
+
+**Code:** `200 OK` **Content:**
+
+JSON  
+\[  
+ {  
+ "id": "12345",  
+ "title": "Complete Project Report",  
+ "description": "Finalize the Q4 analysis",  
+ "done": false,  
+ "files": \[  
+ {  
+ "id": "f1",  
+ "image": "https://api.example.com/uploads/chart.png"  
+ },  
+ {  
+ "id": "f2",  
+ "image": "https://api.example.com/uploads/data.csv"  
+ }  
+ \]  
+ }  
+\]
+
+### **❌ Error Responses**
+
+| Code    | Description  | Body                                    |
+| :------ | :----------- | :-------------------------------------- |
+| **401** | Unauthorized | `{ "error": "User is not authorized" }` |
+| **500** | Server Error | `{ "error": "Internal server error" }`  |
+
+## Експортувати в Таблиці
+
+## **2\. Create Task**
+
+Creates a new task. Because this endpoint accepts file uploads, the request must be sent as `multipart/form-data`.
+
+-   **Endpoint:** `/api/tasks`
+-   **Method:** `POST`
+-   **Content-Type:** `multipart/form-data`
+
+### **📥 Request Body Parameters**
+
+| Field         | Type     | Required | Description                                                           |
+| :------------ | :------- | :------- | :-------------------------------------------------------------------- |
+| `title`       | string   | **Yes**  | Minimum 2 characters.                                                 |
+| `description` | string   | No       | Task details.                                                         |
+| `files`       | File\[\] | No       | Array of files. Allowed formats: `jpg`, `jpeg`, `png`, `gif`, `webp`. |
+
+Експортувати в Таблиці
+
+### **✅ Success Response**
+
+**Code:** `201 Created` **Content:**
+
+JSON  
+{  
+ "id": "67890",  
+ "title": "New Design Draft",  
+ "description": "Mockups for the landing page",  
+ "done": false,  
+ "files": \[  
+ {  
+ "id": "f3",  
+ "image": "https://api.example.com/uploads/mockup.jpg"  
+ }  
+ \]  
+}
+
+### **❌ Error Responses**
+
+**Code:** `400 Bad Request` (Validation Error)
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid title: minimum 2 characters",  
+ "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"  
+ \]  
+}
+
+| Code    | Description  | Body                                    |
+| :------ | :----------- | :-------------------------------------- |
+| **401** | Unauthorized | `{ "error": "User is not authorized" }` |
+| **500** | Server Error | `{ "error": "Internal server error" }`  |
+
+## Експортувати в Таблиці
+
+## **3\. Delete Task**
+
+Permanently removes a task.
+
+-   **Endpoint:** `/api/tasks/{taskId}`
+-   **Method:** `DELETE`
+
+### **📥 Path Variables**
+
+| Parameter | Type   | Required | Description                          |
+| :-------- | :----- | :------- | :----------------------------------- |
+| `taskId`  | string | **Yes**  | The unique ID of the task to delete. |
+
+Експортувати в Таблиці
+
+### **✅ Success Response**
+
+**Code:** `200 OK` **Content:**
+
+JSON  
+{  
+ "deleted": true  
+}
+
+### **❌ Error Responses**
+
+**Code:** `400 Bad Request`
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: taskId is required"  
+ \]  
+}
+
+**Code:** `404 Not Found`
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: no task found with this taskId"  
+ \]  
+}
+
+| Code    | Description  | Body                                                        |
+| :------ | :----------- | :---------------------------------------------------------- |
+| **401** | Unauthorized | `{ "error": "User is not authorized" }`                     |
+| **403** | Forbidden    | `{ "error": "User does not have access to this resource" }` |
+| **500** | Server Error | `{ "error": "Internal server error" }`                      |
