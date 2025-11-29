@@ -19,6 +19,6 @@ router.put(
 	validate(UpdateUserSchema),
 	updateProfile
 );
-router.delete("/me", verifyToken, deleteProfileAvatar);
+router.delete("/me/avatar", verifyToken, deleteProfileAvatar);
 
 export default router;
