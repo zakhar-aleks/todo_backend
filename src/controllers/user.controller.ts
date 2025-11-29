@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
+import { uploadFileToS3 } from "../services/image.service.js";
 
 interface userPayload {
 	id: number;
@@ -21,7 +22,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
 		if (!user) {
 			return res.status(401).json({
-				message: "User is not authorized",
+				error: "User is not authorized",
 			});
 		}
 
@@ -32,7 +33,42 @@ export const getProfile = async (req: Request, res: Response) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			message: "Internal server error",
+			error: "Internal server error",
+		});
+	}
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+	const payload = req.token as userPayload;
+	const name = req.body.name;
+	const avatar = req.file;
+	const data: any = {
+		name: name,
+	};
+
+	if (avatar) {
+		data.avatar = await uploadFileToS3(avatar, "user-avatars");
+	}
+
+	try {
+		const newUser = await prisma.user.update({
+			where: {
+				id: payload.id,
+			},
+			data: {
+				name: data.name,
+				avatar: data.avatar,
+			},
+		});
+
+		res.status(200).json({
+			email: newUser.email,
+			name: newUser.name,
+			avatar: newUser.avatar,
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: "Internal server error",
 		});
 	}
 };

@@ -20,7 +20,7 @@ export const verifyToken = (
 	const token = req.get("Access-Token");
 
 	if (!token)
-		return res.status(401).json({ message: "User is not authorized" });
+		return res.status(401).json({ error: "User is not authorized" });
 
 	try {
 		const decoded = verify(token, process.env.JWT_SECRET!);
@@ -30,16 +30,16 @@ export const verifyToken = (
 	} catch (error) {
 		if (error instanceof TokenExpiredError) {
 			return res.status(401).json({
-				message: "User is not authorized",
+				error: "User is not authorized",
 			});
 		}
 
 		if (error instanceof JsonWebTokenError) {
 			return res.status(401).json({
-				message: "User is not authorized",
+				error: "User is not authorized",
 			});
 		}
 
-		return res.status(500).json({ message: "Internal Server Error" });
+		return res.status(500).json({ error: "Internal Server Error" });
 	}
 };
