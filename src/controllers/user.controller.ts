@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
-import { uploadFileToS3 } from "../services/image.service.js";
+import { deleteFileFromS3, uploadFileToS3 } from "../services/image.service.js";
 
 interface userPayload {
 	id: number;
@@ -65,6 +65,38 @@ export const updateProfile = async (req: Request, res: Response) => {
 			email: newUser.email,
 			name: newUser.name,
 			avatar: newUser.avatar,
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
+
+export const deleteProfileAvatar = async (req: Request, res: Response) => {
+	const payload = req.token as userPayload;
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: { id: payload.id },
+			select: { avatar: true },
+		});
+
+		if (user?.avatar) {
+			await deleteFileFromS3(user.avatar, res);
+		}
+
+		const updatedUser = await prisma.user.update({
+			where: {
+				id: payload.id,
+			},
+			data: {
+				avatar: null,
+			},
+		});
+
+		res.status(200).json({
+			deleted: true,
 		});
 	} catch (error) {
 		res.status(500).json({

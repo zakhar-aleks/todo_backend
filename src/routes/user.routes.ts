@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { verifyToken } from "../middleware/verifyToken.js";
-import { getProfile, updateProfile } from "../controllers/user.controller.js";
+import {
+	deleteProfileAvatar,
+	getProfile,
+	updateProfile,
+} from "../controllers/user.controller.js";
 import { validate } from "../middleware/validate.js";
 import { processFile } from "../services/image.service.js";
 import { UpdateUserSchema } from "../models/user.model.js";
@@ -15,5 +19,6 @@ router.put(
 	validate(UpdateUserSchema),
 	updateProfile
 );
+router.delete("/me", verifyToken, deleteProfileAvatar);
 
 export default router;
