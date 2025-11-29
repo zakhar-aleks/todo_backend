@@ -262,24 +262,24 @@ Retrieves a list of all tasks associated with the authenticated user.
 **Code:** `200 OK` **Content:**
 
 JSON  
-\[  
+[  
  {  
  "id": "12345",  
  "title": "Complete Project Report",  
  "description": "Finalize the Q4 analysis",  
  "done": false,  
- "files": \[  
- {  
- "id": "f1",  
- "image": "https://api.example.com/uploads/chart.png"  
- },  
- {  
- "id": "f2",  
- "image": "https://api.example.com/uploads/data.csv"  
+ "files": [
+ {
+ "id": "f1",
+ "image": "https://api.example.com/uploads/chart.png"
+ },
+ {
+ "id": "f2",
+ "image": "https://api.example.com/uploads/data.csv"
+ }
+ ]  
  }  
- \]  
- }  
-\]
+]
 
 ### **❌ Error Responses**
 
@@ -287,8 +287,6 @@ JSON
 | :------ | :----------- | :-------------------------------------- |
 | **401** | Unauthorized | `{ "error": "User is not authorized" }` |
 | **500** | Server Error | `{ "error": "Internal server error" }`  |
-
-## Експортувати в Таблиці
 
 ## **2\. Create Task**
 
@@ -306,8 +304,6 @@ Creates a new task. Because this endpoint accepts file uploads, the request must
 | `description` | string   | No       | Task details.                                                         |
 | `files`       | File\[\] | No       | Array of files. Allowed formats: `jpg`, `jpeg`, `png`, `gif`, `webp`. |
 
-Експортувати в Таблиці
-
 ### **✅ Success Response**
 
 **Code:** `201 Created` **Content:**
@@ -318,12 +314,12 @@ JSON
  "title": "New Design Draft",  
  "description": "Mockups for the landing page",  
  "done": false,  
- "files": \[  
- {  
- "id": "f3",  
- "image": "https://api.example.com/uploads/mockup.jpg"  
- }  
- \]  
+ "files": [
+ {
+ "id": "f3",
+ "image": "https://api.example.com/uploads/mockup.jpg"
+ }
+ ]  
 }
 
 ### **❌ Error Responses**
@@ -332,18 +328,16 @@ JSON
 
 JSON  
 {  
- "errors": \[  
- "Invalid title: minimum 2 characters",  
- "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"  
- \]  
+ "errors": [
+ "Invalid title: minimum 2 characters",
+ "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"
+ ]  
 }
 
 | Code    | Description  | Body                                    |
 | :------ | :----------- | :-------------------------------------- |
 | **401** | Unauthorized | `{ "error": "User is not authorized" }` |
 | **500** | Server Error | `{ "error": "Internal server error" }`  |
-
-## Експортувати в Таблиці
 
 ## **3\. Delete Task**
 
@@ -357,8 +351,6 @@ Permanently removes a task.
 | Parameter | Type   | Required | Description                          |
 | :-------- | :----- | :------- | :----------------------------------- |
 | `taskId`  | string | **Yes**  | The unique ID of the task to delete. |
-
-Експортувати в Таблиці
 
 ### **✅ Success Response**
 
@@ -375,18 +367,18 @@ JSON
 
 JSON  
 {  
- "errors": \[  
- "Invalid taskId: taskId is required"  
- \]  
+ "errors": [
+ "Invalid taskId: taskId is required"
+ ]  
 }
 
 **Code:** `404 Not Found`
 
 JSON  
 {  
- "errors": \[  
- "Invalid taskId: no task found with this taskId"  
- \]  
+ "errors": [
+ "Invalid taskId: no task found with this taskId"
+ ]  
 }
 
 | Code    | Description  | Body                                                        |
