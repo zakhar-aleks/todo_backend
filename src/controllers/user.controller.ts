@@ -46,13 +46,16 @@ export const updateProfile = async (req: Request, res: Response) => {
 		name: name,
 	};
 
-	const user = await prisma.user.findUnique({
+	const currentUser = await prisma.user.findUnique({
 		where: { id: payload.id },
 		select: { avatar: true },
 	});
 
 	if (avatar) {
-		await deleteFileFromS3(user, res);
+		if (currentUser?.avatar) {
+			await deleteFileFromS3(currentUser.avatar, res);
+		}
+
 		data.avatar = await uploadFileToS3(avatar, "user-avatars");
 	}
 
