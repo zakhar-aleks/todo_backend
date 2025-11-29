@@ -28,6 +28,10 @@ export const LoginUserSchema = z.object({
 		.regex(/[a-zA-Z]/),
 });
 
+export const UpdateUserSchema = z.object({
+	name: z.string().min(2),
+});
+
 export const isPrismaError = (error: unknown): error is PrismaClientError => {
 	return typeof error === "object" && error !== null && "code" in error;
 };

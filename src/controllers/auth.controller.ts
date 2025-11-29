@@ -64,12 +64,8 @@ export const registerUser = async (req: Request, res: Response) => {
 
 		console.error("Uncaught DB Error:", error);
 
-		const message = isPrismaError(error)
-			? error.message
-			: "An unexpected server error occurred.";
 		return res.status(500).json({
-			error: "An unexpected server error occurred.",
-			details: message,
+			error: "Internal server error",
 		});
 	}
 };
