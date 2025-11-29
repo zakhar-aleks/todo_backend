@@ -8,9 +8,27 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
+  id       String  @id @default(cuid())
   email    String  @unique
   name     String
   password String 
   avatar   String? @map("avatar_url")
+  tasks    Task[]
+}
+
+model Task {
+	id           String    @id @default(cuid())
+	title 	     String
+	description  String?
+	files 		 File[]
+	done 		 Boolean
+	userId       String
+    user         User      @relation(fields: [userId], references: [id])
+}
+
+model File {
+	id     String  @id @default(cuid())
+	image  String? @map("image_url")
+	taskId String
+    task   Task    @relation(fields: [taskId], references: [id])
 }
