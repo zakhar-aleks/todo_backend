@@ -21,7 +21,7 @@ S3_BUCKET_NAME=your_bucket_name
 Once your `.env` file is configured, run the following command to install dependencies and start the containers in detached mode:
 
 ```bash
-npm i && docker compose up --build -d
+npm i && docker compose up --build -d && npx prisma migrate dev
 ```
 
 # **Authentication API Documentation**

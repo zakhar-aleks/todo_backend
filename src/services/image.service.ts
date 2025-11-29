@@ -86,24 +86,31 @@ export const deleteFileFromS3 = async (key: string, res: Response) => {
 	}
 };
 
-export const processFile = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	const uploadMiddleware = upload.single("avatar") as RequestHandler;
+export async function uploadMultipleFilesToS3(
+	files: MulterFile[],
+	folder = "task-images"
+) {
+	const uploadPromises = files.map((file) => uploadFileToS3(file, folder));
 
-	uploadMiddleware(req, res, (err: any) => {
-		if (err instanceof multer.MulterError) {
-			return res.status(500).json({
-				error: "Internal server error",
-			});
-		} else if (err) {
-			return res.status(400).json({
-				error: err.message,
-			});
-		}
+	try {
+		const keys = await Promise.all(uploadPromises);
+		return keys;
+	} catch (error) {
+		console.error("Batch S3 Upload Error:", error);
+		throw new Error("Failed to upload one or more files to S3");
+	}
+}
 
-		next();
-	});
+export const uploadMiddleware = (multerInstance: RequestHandler) => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		multerInstance(req, res, (err: any) => {
+			if (err) {
+				return next(err);
+			}
+			next();
+		});
+	};
 };
+
+export const uploadAvatar = uploadMiddleware(upload.single("avatar"));
+export const uploadImages = uploadMiddleware(upload.array("files", 12));

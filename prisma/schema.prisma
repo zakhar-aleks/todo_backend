@@ -28,7 +28,7 @@ model Task {
 
 model File {
 	id     String  @id @default(cuid())
-	image  String? @map("image_url")
+	image  String  @map("image_url")
 	taskId String
     task   Task    @relation(fields: [taskId], references: [id])
 }
