@@ -7,7 +7,6 @@ import { processFile } from "../services/image.service.js";
 const router = Router();
 
 router.post("/registration", processFile, validate(UserSchema), registerUser);
-
 router.post("/login", validate(LoginUserSchema), loginUser);
 
 export default router;

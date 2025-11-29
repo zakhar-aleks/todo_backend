@@ -1,4 +1,8 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+	S3Client,
+	PutObjectCommand,
+	DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import multer from "multer";
 import dotenv from "dotenv";
 import type { Request, Response, NextFunction, RequestHandler } from "express";
@@ -63,6 +67,24 @@ export async function uploadFileToS3(
 		throw new Error("Failed to upload file to S3");
 	}
 }
+
+export const deleteFileFromS3 = async (key: string, res: Response) => {
+	const params = {
+		Bucket: process.env.S3_BUCKET_NAME!,
+		Key: key,
+	};
+	const command = new DeleteObjectCommand(params);
+
+	try {
+		await s3.send(command);
+	} catch (err) {
+		console.error(err);
+
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
 
 export const processFile = (
 	req: Request,
