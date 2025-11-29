@@ -1,0 +1,17 @@
+-- CreateTable
+CREATE TABLE "Task" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "done" BOOLEAN NOT NULL,
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "File" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "image_url" TEXT,
+    "taskId" INTEGER NOT NULL,
+    CONSTRAINT "File_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

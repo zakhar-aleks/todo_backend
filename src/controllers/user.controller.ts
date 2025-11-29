@@ -3,7 +3,7 @@ import { prisma } from "../main.js";
 import { deleteFileFromS3, uploadFileToS3 } from "../services/image.service.js";
 
 interface userPayload {
-	id: number;
+	id: string;
 	email: string;
 }
 
