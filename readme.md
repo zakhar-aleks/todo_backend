@@ -242,71 +242,73 @@ JSON
  "error": "Internal server error"  
 }
 
-# **📋 Task Management API**
+# **Task Management API**
 
-## **Authentication**
+### **Get Tasks**
 
-All endpoints documented below are **protected resources**. Requests must include an authentication header (typically a Bearer token): `Authorization: Bearer <your_token>`
+**Method:** GET **Endpoint:** /api/tasks **Protected resource:** Yes
 
----
+#### **Responses**
 
-## **1\. Get Tasks**
+🟢 **200 OK**
 
-Retrieves a list of all tasks associated with the authenticated user.
-
--   **Endpoint:** `/api/tasks`
--   **Method:** `GET`
-
-### **✅ Success Response**
-
-**Code:** `200 OK` **Content:**
+Tasks retrieved successfully.
 
 JSON  
-[  
+\[  
  {  
  "id": "12345",  
  "title": "Complete Project Report",  
  "description": "Finalize the Q4 analysis",  
  "done": false,  
- "files": [
- {
- "id": "f1",
- "image": "https://api.example.com/uploads/chart.png"
- },
- {
- "id": "f2",
- "image": "https://api.example.com/uploads/data.csv"
- }
- ]  
+ "files": \[  
+ {  
+ "id": "f1",  
+ "image": "https://api.example.com/uploads/chart.png"  
+ },  
+ {  
+ "id": "f2",  
+ "image": "https://api.example.com/uploads/data.csv"  
  }  
-]
+ \]  
+ }  
+\]
 
-### **❌ Error Responses**
+🔴 **401 Unauthorized**
 
-| Code    | Description  | Body                                    |
-| :------ | :----------- | :-------------------------------------- |
-| **401** | Unauthorized | `{ "error": "User is not authorized" }` |
-| **500** | Server Error | `{ "error": "Internal server error" }`  |
+JSON  
+{  
+ "error": "User is not authorized"  
+}
 
-## **2\. Create Task**
+🔴 **500 Internal Server Error**
 
-Creates a new task. Because this endpoint accepts file uploads, the request must be sent as `multipart/form-data`.
+JSON  
+{  
+ "error": "Internal server error"  
+}
 
--   **Endpoint:** `/api/tasks`
--   **Method:** `POST`
--   **Content-Type:** `multipart/form-data`
+---
 
-### **📥 Request Body Parameters**
+### **Create Task**
 
-| Field         | Type     | Required | Description                                                           |
-| :------------ | :------- | :------- | :-------------------------------------------------------------------- |
-| `title`       | string   | **Yes**  | Minimum 2 characters.                                                 |
-| `description` | string   | No       | Task details.                                                         |
-| `files`       | File\[\] | No       | Array of files. Allowed formats: `jpg`, `jpeg`, `png`, `gif`, `webp`. |
+**Method:** POST **Endpoint:** /api/tasks **Protected resource:** Yes
 
-### **✅ Success Response**
+#### **Request Body Parameters**
 
-**Code:** `201 Created` **Content:**
+| Field       | Type     | Required | Validation Rules                            |
+| :---------- | :------- | :------- | :------------------------------------------ |
+| title       | String   | Yes      | Minimum 2 characters.                       |
+| description | String   | No       | Task details.                               |
+| files       | File\[\] | No       | Allowed formats: jpg, jpeg, png, gif, webp. |
+
+####
+
+#### **Responses**
+
+🟢 **201 Created**
+
+Task created successfully.
 
 JSON  
 {  
@@ -314,75 +316,94 @@ JSON
  "title": "New Design Draft",  
  "description": "Mockups for the landing page",  
  "done": false,  
- "files": [
- {
- "id": "f3",
- "image": "https://api.example.com/uploads/mockup.jpg"
- }
- ]  
+ "files": \[  
+ {  
+ "id": "f3",  
+ "image": "https://api.example.com/uploads/mockup.jpg"  
+ }  
+ \]  
 }
 
-### **❌ Error Responses**
+🔴 **400 Bad Request**
 
-**Code:** `400 Bad Request` (Validation Error)
+Validation failed.
 
 JSON  
 {  
- "errors": [
- "Invalid title: minimum 2 characters",
- "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"
- ]  
+ "errors": \[  
+ "Invalid title: minimum 2 characters",  
+ "Invalid files: allowed formats are jpg, jpeg, png, gif, webp"  
+ \]  
 }
 
-| Code    | Description  | Body                                    |
-| :------ | :----------- | :-------------------------------------- |
-| **401** | Unauthorized | `{ "error": "User is not authorized" }` |
-| **500** | Server Error | `{ "error": "Internal server error" }`  |
+🔴 **401 Unauthorized**
 
-## **3\. Delete Task**
+JSON  
+{  
+ "error": "User is not authorized"  
+}
 
-Permanently removes a task.
+🔴 **500 Internal Server Error**
 
--   **Endpoint:** `/api/tasks/{taskId}`
--   **Method:** `DELETE`
+JSON  
+{  
+ "error": "Internal server error"  
+}
 
-### **📥 Path Variables**
+---
 
-| Parameter | Type   | Required | Description                          |
-| :-------- | :----- | :------- | :----------------------------------- |
-| `taskId`  | string | **Yes**  | The unique ID of the task to delete. |
+### **Delete Task**
 
-### **✅ Success Response**
+**Method:** DELETE **Endpoint:** /api/tasks/{taskId} **Protected resource:** Yes
 
-**Code:** `200 OK` **Content:**
+#### **Responses**
+
+🟢 **200 OK**
+
+Task deleted successfully.
 
 JSON  
 {  
  "deleted": true  
 }
 
-### **❌ Error Responses**
+🔴 **400 Bad Request**
 
-**Code:** `400 Bad Request`
-
-JSON  
-{  
- "errors": [
- "Invalid taskId: taskId is required"
- ]  
-}
-
-**Code:** `404 Not Found`
+Validation failed.
 
 JSON  
 {  
- "errors": [
- "Invalid taskId: no task found with this taskId"
- ]  
+ "errors": \[  
+ "Invalid taskId: taskId is required"  
+ \]  
 }
 
-| Code    | Description  | Body                                                        |
-| :------ | :----------- | :---------------------------------------------------------- |
-| **401** | Unauthorized | `{ "error": "User is not authorized" }`                     |
-| **403** | Forbidden    | `{ "error": "User does not have access to this resource" }` |
-| **500** | Server Error | `{ "error": "Internal server error" }`                      |
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+🔴 **404 Not Found**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: no task found with this taskId"  
+ \]  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
