@@ -1,10 +1,18 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
-import { uploadMultipleFilesToS3 } from "../services/image.service.js";
+import {
+	deleteMultipleFilesFromS3,
+	uploadMultipleFilesToS3,
+} from "../services/image.service.js";
 
 interface userPayload {
 	id: string;
 	email: string;
+}
+
+interface imageFile {
+	id: string;
+	image: string;
 }
 
 const createImageFile = async (
@@ -35,6 +43,7 @@ export const getTasks = async (req: Request, res: Response) => {
 
 		res.status(200).json(userTasks);
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			error: "Internal sever error",
 		});
@@ -94,6 +103,51 @@ export const createTask = async (req: Request, res: Response) => {
 
 		res.status(201).json(currentTask);
 	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
+
+export const deleteTask = async (req: Request, res: Response) => {
+	const { taskId } = req.params;
+
+	if (!taskId) {
+		res.status(500).json({
+			error: "Internal server error",
+		});
+		return;
+	}
+
+	try {
+		const currentTask = await prisma.task.findUnique({
+			where: { id: taskId! },
+			include: { files: true },
+		});
+
+		if (!currentTask) {
+			res.status(500).json({
+				error: "Internal server error",
+			});
+			return;
+		}
+
+		if (currentTask.files && currentTask.files.length > 0) {
+			await deleteMultipleFilesFromS3(
+				currentTask.files.map((f: imageFile) => f.image)
+			);
+		}
+
+		await prisma.task.delete({
+			where: { id: taskId! },
+		});
+
+		res.status(200).json({
+			deleted: true,
+		});
+	} catch (err) {
+		console.error(err);
 		res.status(500).json({
 			error: "Internal server error",
 		});

@@ -2,6 +2,7 @@ import {
 	S3Client,
 	PutObjectCommand,
 	DeleteObjectCommand,
+	DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
 import multer from "multer";
 import dotenv from "dotenv";
@@ -68,7 +69,7 @@ export async function uploadFileToS3(
 	}
 }
 
-export const deleteFileFromS3 = async (key: string, res: Response) => {
+export const deleteFileFromS3 = async (key: string) => {
 	const params = {
 		Bucket: process.env.S3_BUCKET_NAME!,
 		Key: key,
@@ -79,10 +80,6 @@ export const deleteFileFromS3 = async (key: string, res: Response) => {
 		await s3.send(command);
 	} catch (err) {
 		console.error(err);
-
-		res.status(500).json({
-			error: "Internal server error",
-		});
 	}
 };
 
@@ -98,6 +95,33 @@ export async function uploadMultipleFilesToS3(
 	} catch (error) {
 		console.error("Batch S3 Upload Error:", error);
 		throw new Error("Failed to upload one or more files to S3");
+	}
+}
+
+export async function deleteMultipleFilesFromS3(keys: string[]) {
+	if (!keys || keys.length === 0) return;
+
+	const params = {
+		Bucket: process.env.S3_BUCKET_NAME!,
+		Delete: {
+			Objects: keys.map((key) => ({ Key: key })),
+			Quiet: false,
+		},
+	};
+
+	const command = new DeleteObjectsCommand(params);
+
+	try {
+		const response = await s3.send(command);
+
+		if (response.Errors && response.Errors.length > 0) {
+			console.error("Some files failed to delete:", response.Errors);
+		}
+
+		return response;
+	} catch (error) {
+		console.error("Batch S3 Delete Error:", error);
+		throw new Error("Failed to delete files from S3");
 	}
 }
 
