@@ -32,6 +32,7 @@ export const getProfile = async (req: Request, res: Response) => {
 			avatar: user?.avatar,
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			error: "Internal server error",
 		});
@@ -53,7 +54,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 	if (avatar) {
 		if (currentUser?.avatar) {
-			await deleteFileFromS3(currentUser.avatar, res);
+			await deleteFileFromS3(currentUser.avatar);
 		}
 
 		data.avatar = await uploadFileToS3(avatar, "user-avatars");
@@ -76,6 +77,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 			avatar: newUser.avatar,
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			error: "Internal server error",
 		});
@@ -92,7 +94,7 @@ export const deleteProfileAvatar = async (req: Request, res: Response) => {
 		});
 
 		if (user?.avatar) {
-			await deleteFileFromS3(user.avatar, res);
+			await deleteFileFromS3(user.avatar);
 		}
 
 		const updatedUser = await prisma.user.update({
@@ -108,6 +110,7 @@ export const deleteProfileAvatar = async (req: Request, res: Response) => {
 			deleted: true,
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			error: "Internal server error",
 		});
