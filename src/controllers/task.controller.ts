@@ -24,6 +24,23 @@ const createImageFile = async (
 	await Promise.all(dbPromises);
 };
 
+export const getTasks = async (req: Request, res: Response) => {
+	const payload = req.token as userPayload;
+
+	try {
+		const userTasks = await prisma.task.findMany({
+			where: { userId: payload.id },
+			include: { files: true },
+		});
+
+		res.status(200).json(userTasks);
+	} catch (error) {
+		res.status(500).json({
+			error: "Internal sever error",
+		});
+	}
+};
+
 export const createTask = async (req: Request, res: Response) => {
 	const { title, description } = req.body;
 	const payload = req.token as userPayload;
