@@ -46,8 +46,8 @@ export const getTasks = async (req: Request, res: Response) => {
 			userTasks.map(async (task) => {
 				const filesWithUrls = await Promise.all(
 					task.files.map(async (file) => {
-						const url = await getImageUrl(file.image);
-						return { ...file, url };
+						const image = await getImageUrl(file.image);
+						return { ...file, image };
 					})
 				);
 
@@ -116,8 +116,8 @@ export const createTask = async (req: Request, res: Response) => {
 		});
 		const filesWithUrls = await Promise.all(
 			(currentTask?.files || []).map(async (file) => {
-				const url = await getImageUrl(file.image);
-				return { ...file, url };
+				const image = await getImageUrl(file.image);
+				return { ...file, image };
 			})
 		);
 
