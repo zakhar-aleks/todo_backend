@@ -1,6 +1,10 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
-import { deleteFileFromS3, uploadFileToS3 } from "../services/image.service.js";
+import {
+	deleteFileFromS3,
+	getImageUrl,
+	uploadFileToS3,
+} from "../services/image.service.js";
 
 interface userPayload {
 	id: string;
@@ -26,10 +30,20 @@ export const getProfile = async (req: Request, res: Response) => {
 			});
 		}
 
-		res.status(200).json({
+		const data = {
 			email: user.email,
 			name: user.name,
 			avatar: user?.avatar,
+		};
+
+		if (user.avatar) {
+			data.avatar = await getImageUrl(user.avatar);
+		}
+
+		res.status(200).json({
+			email: data.email,
+			name: data.name,
+			avatar: data.avatar,
 		});
 	} catch (error) {
 		console.error(error);
@@ -57,7 +71,8 @@ export const updateProfile = async (req: Request, res: Response) => {
 			await deleteFileFromS3(currentUser.avatar);
 		}
 
-		data.avatar = await uploadFileToS3(avatar, "user-avatars");
+		const key = await uploadFileToS3(avatar, "user-avatars");
+		data.avatar = await getImageUrl(key);
 	}
 
 	try {

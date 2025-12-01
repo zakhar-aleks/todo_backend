@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
 import {
 	deleteMultipleFilesFromS3,
+	getImageUrl,
 	uploadMultipleFilesToS3,
 } from "../services/image.service.js";
 
@@ -41,7 +42,20 @@ export const getTasks = async (req: Request, res: Response) => {
 			include: { files: true },
 		});
 
-		res.status(200).json(userTasks);
+		const tasksWithUrls = await Promise.all(
+			userTasks.map(async (task) => {
+				const filesWithUrls = await Promise.all(
+					task.files.map(async (file) => {
+						const url = await getImageUrl(file.image);
+						return { ...file, url };
+					})
+				);
+
+				return { ...task, files: filesWithUrls };
+			})
+		);
+
+		res.status(200).json(tasksWithUrls);
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
@@ -100,8 +114,14 @@ export const createTask = async (req: Request, res: Response) => {
 				files: true,
 			},
 		});
+		const filesWithUrls = await Promise.all(
+			(currentTask?.files || []).map(async (file) => {
+				const url = await getImageUrl(file.image);
+				return { ...file, url };
+			})
+		);
 
-		res.status(201).json(currentTask);
+		res.status(201).json({ ...currentTask, files: filesWithUrls });
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({
