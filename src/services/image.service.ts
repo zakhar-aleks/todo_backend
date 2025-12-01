@@ -3,10 +3,12 @@ import {
 	PutObjectCommand,
 	DeleteObjectCommand,
 	DeleteObjectsCommand,
+	GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import multer from "multer";
 import dotenv from "dotenv";
 import type { Request, Response, NextFunction, RequestHandler } from "express";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 type MulterFile = Express.Multer.File;
 
@@ -124,6 +126,17 @@ export async function deleteMultipleFilesFromS3(keys: string[]) {
 		throw new Error("Failed to delete files from S3");
 	}
 }
+
+export const getImageUrl = async (key: string) => {
+	const command = new GetObjectCommand({
+		Bucket: process.env.S3_BUCKET_NAME!,
+		Key: key,
+	});
+
+	const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+	return url;
+};
 
 export const uploadMiddleware = (multerInstance: RequestHandler) => {
 	return (req: Request, res: Response, next: NextFunction) => {
