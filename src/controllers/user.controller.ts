@@ -68,11 +68,14 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 	if (avatar) {
 		if (currentUser?.avatar) {
-			await deleteFileFromS3(currentUser.avatar);
+			try {
+				await deleteFileFromS3(currentUser.avatar);
+			} catch (e) {}
 		}
 
 		const key = await uploadFileToS3(avatar, "user-avatars");
-		data.avatar = await getImageUrl(key);
+
+		data.avatar = key;
 	}
 
 	try {
@@ -86,10 +89,16 @@ export const updateProfile = async (req: Request, res: Response) => {
 			},
 		});
 
+		let avatarUrl = newUser.avatar;
+
+		if (newUser.avatar) {
+			avatarUrl = await getImageUrl(newUser.avatar);
+		}
+
 		res.status(200).json({
 			email: newUser.email,
 			name: newUser.name,
-			avatar: newUser.avatar,
+			avatar: avatarUrl,
 		});
 	} catch (error) {
 		console.error(error);
