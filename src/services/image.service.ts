@@ -9,6 +9,7 @@ import multer from "multer";
 import dotenv from "dotenv";
 import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import crypto from "crypto";
 
 type MulterFile = Express.Multer.File;
 
@@ -48,10 +49,9 @@ export async function uploadFileToS3(
 	file: MulterFile,
 	folder = "user-avatars"
 ) {
-	const key = `${folder}/${Date.now()}-${file.originalname.replace(
-		/\s/g,
-		"_"
-	)}`;
+	const randomName = crypto.randomUUID();
+	const extension = file.mimetype.split("/")[1] || "jpeg";
+	const key = `${folder}/${randomName}.${extension}`;
 
 	const params = {
 		Bucket: process.env.S3_BUCKET_NAME!,
