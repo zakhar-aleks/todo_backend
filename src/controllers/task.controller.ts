@@ -64,6 +64,45 @@ export const getTasks = async (req: Request, res: Response) => {
 	}
 };
 
+export const getTaskById = async (req: Request, res: Response) => {
+	const { taskId } = req.params;
+
+	if (!taskId) {
+		res.status(500).json({
+			error: "Internal server error",
+		});
+		return;
+	}
+
+	try {
+		const currentTask = await prisma.task.findUnique({
+			where: { id: taskId! },
+			include: { files: true },
+		});
+
+		if (!currentTask) {
+			res.status(500).json({
+				error: "Internal server error",
+			});
+			return;
+		}
+
+		const taskWithUrl = await Promise.all(
+			currentTask.files.map(async (file) => {
+				const image = await getImageUrl(file.image);
+				return { ...currentTask, files: { ...file, image } };
+			})
+		);
+
+		res.status(200).json(taskWithUrl);
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
+
 export const createTask = async (req: Request, res: Response) => {
 	const { title, description } = req.body;
 	const payload = req.token as userPayload;
