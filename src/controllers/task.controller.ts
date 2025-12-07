@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../main.js";
 import {
+	deleteFileFromS3,
 	deleteMultipleFilesFromS3,
 	getImageUrl,
 	uploadMultipleFilesToS3,
@@ -313,6 +314,45 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 		await prisma.task.delete({
 			where: { id: taskId! },
+		});
+
+		res.status(200).json({
+			deleted: true,
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
+
+export const deleteAttachment = async (req: Request, res: Response) => {
+	const { taskId, fileId } = req.params;
+
+	if (!taskId || !fileId) {
+		res.status(500).json({
+			error: "Internal server error",
+		});
+		return;
+	}
+
+	try {
+		const currentFile = await prisma.file.findUnique({
+			where: { id: fileId! },
+		});
+
+		if (!currentFile) {
+			res.status(404).json({
+				error: "Invalid taskId: no task found with this taskId",
+			});
+			return;
+		}
+
+		await deleteFileFromS3(currentFile.image);
+
+		await prisma.file.delete({
+			where: { id: fileId! },
 		});
 
 		res.status(200).json({

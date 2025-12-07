@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
 	createTask,
+	deleteAttachment,
 	deleteTask,
 	getTaskById,
 	getTasks,
@@ -38,5 +39,11 @@ router.patch(
 	updateTask
 );
 router.delete("/:taskId", verifyToken, verifyAccess, deleteTask);
+router.delete(
+	"/:taskId/attachments/:fileId",
+	verifyToken,
+	verifyAccess,
+	deleteAttachment
+);
 
 export default router;
