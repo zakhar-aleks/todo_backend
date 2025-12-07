@@ -8,7 +8,11 @@ import {
 } from "../controllers/task.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { validate } from "../middleware/validate.js";
-import { taskSchema } from "../models/task.model.js";
+import {
+	patchTaskSchema,
+	taskSchema,
+	updateTaskSchema,
+} from "../models/task.model.js";
 import { uploadImages } from "../services/image.service.js";
 import { verifyAccess } from "../middleware/verifyAccess.js";
 
@@ -22,7 +26,15 @@ router.put(
 	verifyToken,
 	uploadImages,
 	verifyAccess,
-	validate(taskSchema),
+	validate(updateTaskSchema),
+	updateTask
+);
+router.patch(
+	"/:taskId",
+	verifyToken,
+	uploadImages,
+	verifyAccess,
+	validate(patchTaskSchema),
 	updateTask
 );
 router.delete("/:taskId", verifyToken, verifyAccess, deleteTask);
