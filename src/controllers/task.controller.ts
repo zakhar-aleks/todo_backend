@@ -113,20 +113,43 @@ export const getAllTasks = async (req: Request, res: Response) => {
 	try {
 		const page = parseInt(req.query.page as string) || 1;
 		const limit = parseInt(req.query.tasksPerPage as string) || 10;
-
 		const skip = (page - 1) * limit;
+
+		if (!page || page <= 0) {
+			res.status(400).json({
+				error: "Invalid page: page is required",
+			});
+		}
+
+		if (!limit || limit <= 0) {
+			res.status(400).json({
+				error: "Invalid page: page is required",
+			});
+		}
 
 		const tasks = await prisma.task.findMany({
 			skip: skip,
 			take: limit,
 			include: { files: true },
+			orderBy: { id: "desc" },
 		});
 
-		const taskTotalCount = await prisma.task.count();
+		const tasksWithUrls = await Promise.all(
+			tasks.map(async (task) => {
+				const filesWithUrls = await Promise.all(
+					task.files.map(async (file) => {
+						const imageUrl = await getImageUrl(file.image);
+						return { ...file, image: imageUrl };
+					})
+				);
+
+				return { ...task, files: filesWithUrls };
+			})
+		);
 
 		res.status(200).json({
-			tasks: tasks,
-			taskTotalCount: taskTotalCount,
+			tasks: tasksWithUrls,
+			taskTotalCount: tasks.length,
 		});
 	} catch (err) {
 		console.error(err);
@@ -360,7 +383,7 @@ export const deleteTask = async (req: Request, res: Response) => {
 export const deleteAttachment = async (req: Request, res: Response) => {
 	const { taskId, fileId } = req.params;
 
-	if (!taskId || !fileId) {
+	if (!fileId) {
 		res.status(500).json({
 			error: "Internal server error",
 		});
