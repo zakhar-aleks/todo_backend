@@ -3,6 +3,7 @@ import {
 	createTask,
 	deleteAttachment,
 	deleteTask,
+	getAllTasks,
 	getTaskById,
 	getTasks,
 	updateTask,
@@ -20,6 +21,7 @@ import { verifyAccess } from "../middleware/verifyAccess.js";
 const router = Router();
 
 router.get("/", verifyToken, getTasks);
+router.get("/all", verifyToken, getAllTasks);
 router.get("/:taskId", verifyToken, verifyAccess, getTaskById);
 router.post("/", verifyToken, uploadImages, validate(taskSchema), createTask);
 router.put(

@@ -104,6 +104,31 @@ export const getTaskById = async (req: Request, res: Response) => {
 	}
 };
 
+export const getAllTasks = async (req: Request, res: Response) => {
+	try {
+		const page = parseInt(req.query.page as string) || 1;
+		const limit = parseInt(req.query.tasksPerPage as string) || 10;
+
+		const skip = (page - 1) * limit;
+
+		const tasks = await prisma.task.findMany({
+			skip: skip,
+			take: limit,
+			include: { files: true },
+		});
+
+		const taskTotalCount = await prisma.task.count();
+
+		res.status(200).json({
+			tasks: tasks,
+			taskTotalCount: taskTotalCount,
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
 export const createTask = async (req: Request, res: Response) => {
 	const { title, description } = req.body;
 	const payload = req.token as userPayload;
