@@ -169,6 +169,96 @@ export const createTask = async (req: Request, res: Response) => {
 	}
 };
 
+export const updateTask = async (req: Request, res: Response) => {
+	const { taskId } = req.params;
+	const { title, description, done } = req.body;
+	const files = req.files as Express.Multer.File[];
+	let existingFileIds: string[] = [];
+	const data: any = {
+		title: title,
+		description: null,
+		done: done === "true" || done === true,
+	};
+
+	if (req.body.existingFileIds) {
+		existingFileIds = Array.isArray(req.body.existingFileIds)
+			? req.body.existingFileIds
+			: [req.body.existingFileIds];
+	}
+
+	if (!taskId) {
+		res.status(500).json({
+			error: "Internal server error",
+		});
+		return;
+	}
+
+	if (description) {
+		data.description = description;
+	}
+
+	try {
+		const currentTask = await prisma.task.findUnique({
+			where: { id: taskId! },
+			include: { files: true },
+		});
+
+		if (!currentTask) {
+			res.status(404).json({
+				error: "Invalid taskId: no task found with this taskId",
+			});
+
+			return;
+		}
+
+		const filesToDelete = currentTask?.files.filter(
+			(file) => !existingFileIds.includes(file.id)
+		);
+
+		if (filesToDelete.length > 0) {
+			await deleteMultipleFilesFromS3(filesToDelete.map((f) => f.image));
+
+			await prisma.file.deleteMany({
+				where: {
+					id: { in: filesToDelete.map((f) => f.id) },
+				},
+			});
+		}
+
+		const updatedTask = await prisma.task.update({
+			where: { id: taskId! },
+			data: data,
+		});
+
+		if (files && files.length !== 0) {
+			await createImageFile(updatedTask.id, files);
+		}
+
+		const newTask = await prisma.task.findUnique({
+			where: { id: taskId! },
+			include: { files: true },
+		});
+
+		if (!newTask) {
+			return;
+		}
+
+		const filesWithUrls = await Promise.all(
+			newTask.files.map(async (file) => {
+				const image = await getImageUrl(file.image);
+				return { ...file, image };
+			})
+		);
+
+		res.status(200).json({ ...newTask, files: filesWithUrls });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			error: "Internal server error",
+		});
+	}
+};
+
 export const deleteTask = async (req: Request, res: Response) => {
 	const { taskId } = req.params;
 
