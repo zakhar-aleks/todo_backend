@@ -290,6 +290,125 @@ JSON
 
 ---
 
+### **Get Task by ID**
+
+Retrieves a specific task. Users can only access their own tasks.
+
+**Method:** `GET` **Endpoint:** `/api/tasks/{taskId}` **Protected resource:** Yes
+
+#### **Request Parameters (Path)**
+
+| Field  | Type   | Required | Description                |
+| :----- | :----- | :------- | :------------------------- |
+| taskId | String | Yes      | The unique ID of the task. |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Task retrieved successfully.
+
+JSON  
+{  
+ "id": "12345",  
+ "title": "Complete Project Report",  
+ "description": "Finalize the Q4 analysis",  
+ "done": false,  
+ "files": \[  
+ {  
+ "id": "f1",  
+ "image": "https://api.example.com/uploads/chart.png"  
+ }  
+ \]  
+}
+
+🔴 **400 Bad Request**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: taskId is required"  
+ \]  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+🔴 **404 Not Found**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: no task found with this taskId"  
+ \]  
+}
+
+### **Get All Tasks**
+
+Retrieves all tasks with pagination support.
+
+**Method:** `GET` **Endpoint:** `/api/tasks/all` **Protected resource:** Yes
+
+#### **Query Parameters**
+
+| Field        | Type   | Required | Description                                 |
+| :----------- | :----- | :------- | :------------------------------------------ |
+| page         | Number | Yes      | The page number to retrieve (e.g., 1).      |
+| tasksPerPage | Number | Yes      | The number of tasks per page (e.g., 5, 10). |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Tasks retrieved successfully.
+
+JSON  
+{  
+ "tasks": \[  
+ {  
+ "id": "12345",  
+ "title": "Complete Project Report"  
+ },  
+ {  
+ "id": "67890",  
+ "title": "Fix Navbar Bug"  
+ }  
+ \],  
+ "taskTotalCount": 13  
+}
+
+🔴 **400 Bad Request**
+
+Validation failed.
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid page: page is required",  
+ "Invalid tasksPerPage: tasksPerPage is required"  
+ \]  
+}
+
+🔴 **401 Unauthorized**
+
+JSON  
+{  
+ "error": "User is not authorized"  
+}
+
+🔴 **500 Internal Server Error**
+
+JSON  
+{  
+ "error": "Internal server error"  
+}
+
+---
+
 ### **Create Task**
 
 **Method:** POST **Endpoint:** /api/tasks **Protected resource:** Yes
@@ -352,6 +471,130 @@ JSON
 
 ---
 
+### **Update Task**
+
+Updates a task's data.
+
+**Method:** `PUT` **Endpoint:** `/api/tasks/{taskId}` **Protected resource:** Yes
+
+#### **Request Parameters (Path)**
+
+| Field  | Type   | Required | Description                |
+| :----- | :----- | :------- | :------------------------- |
+| taskId | String | Yes      | The unique ID of the task. |
+
+#### **Request Body Parameters**
+
+| Field           | Type      | Required | Validation Rules                            |
+| :-------------- | :-------- | :------- | :------------------------------------------ |
+| title           | String    | Yes      | Minimum 2 characters.                       |
+| description     | String    | No       |                                             |
+| done            | Boolean   | Yes      | Must be a boolean value.                    |
+| files           | File\[\]  | No       | Allowed formats: jpg, jpeg, png, gif, webp. |
+| existingFileIds | Array\[\] | No       |                                             |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Task updated successfully.
+
+JSON  
+{  
+ "id": "12345",  
+ "title": "Updated Title",  
+ "description": "Updated description",  
+ "done": true,  
+ "files": \[  
+ {  
+ "id": "f1",  
+ "image": "https://api.example.com/uploads/new-image.png"  
+ }  
+ \]  
+}
+
+🔴 **400 Bad Request**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: taskId is required",  
+ "Invalid title: minimum 2 characters",  
+ "Invalid done: must contain boolean value"  
+ \]  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+🔴 **404 Not Found**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: no task found with this taskId"  
+ \]  
+}
+
+### **Update Task Partially**
+
+Updates specific fields of a task.
+
+**Method:** `PATCH` **Endpoint:** `/api/tasks/{taskId}` **Protected resource:** Yes
+
+#### **Request Parameters (Path)**
+
+| Field  | Type   | Required | Description                |
+| :----- | :----- | :------- | :------------------------- |
+| taskId | String | Yes      | The unique ID of the task. |
+
+#### **Request Body Parameters**
+
+| Field           | Type      | Required | Validation Rules                            |
+| :-------------- | :-------- | :------- | :------------------------------------------ |
+| title           | String    | No       | Minimum 2 characters.                       |
+| description     | String    | No       |                                             |
+| done            | Boolean   | No       | Must be a boolean value.                    |
+| files           | File\[\]  | No       | Allowed formats: jpg, jpeg, png, gif, webp. |
+| existingFileIds | Array\[\] | No       |                                             |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+Task updated successfully.
+
+JSON  
+{  
+ "id": "12345",  
+ "title": "Patched Title",  
+ "description": "Description remains same",  
+ "done": false,  
+ "files": \[\]  
+}
+
+🔴 **400 Bad Request**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid title: minimum 2 characters"  
+ \]  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+---
+
 ### **Delete Task**
 
 **Method:** DELETE **Endpoint:** /api/tasks/{taskId} **Protected resource:** Yes
@@ -406,4 +649,54 @@ JSON
 JSON  
 {  
  "error": "Internal server error"  
+}
+
+### **Delete Task Attachment**
+
+Deletes a specific attachment file from a task.
+
+**Method:** `DELETE` **Endpoint:** `/api/tasks/{taskId}/attachments/{fileId}` **Protected resource:** Yes
+
+#### **Request Parameters (Path)**
+
+| Field  | Type   | Required | Description                |
+| :----- | :----- | :------- | :------------------------- |
+| taskId | String | Yes      | The unique ID of the task. |
+| fileId | String | Yes      | The unique ID of the file. |
+
+#### **Responses**
+
+🟢 **200 OK**
+
+File deleted successfully.
+
+JSON  
+{  
+ "deleted": true  
+}
+
+🔴 **400 Bad Request**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid taskId: taskId is required",  
+ "Invalid fileId: fileId is required"  
+ \]  
+}
+
+🔴 **403 Forbidden**
+
+JSON  
+{  
+ "error": "User does not have access to this resource"  
+}
+
+🔴 **404 Not Found**
+
+JSON  
+{  
+ "errors": \[  
+ "Invalid fileId: no file found with this fileId"  
+ \]  
 }
