@@ -173,18 +173,8 @@ export const updateTask = async (req: Request, res: Response) => {
 	const { taskId } = req.params;
 	const { title, description, done } = req.body;
 	const files = req.files as Express.Multer.File[];
-	let existingFileIds: string[] = [];
-	const data: any = {
-		title: title,
-		description: null,
-		done: done === "true" || done === true,
-	};
-
-	if (req.body.existingFileIds) {
-		existingFileIds = Array.isArray(req.body.existingFileIds)
-			? req.body.existingFileIds
-			: [req.body.existingFileIds];
-	}
+	let existingFileIds: string[] | undefined = undefined;
+	const data: any = {};
 
 	if (!taskId) {
 		res.status(500).json({
@@ -193,8 +183,16 @@ export const updateTask = async (req: Request, res: Response) => {
 		return;
 	}
 
-	if (description) {
+	if (title !== undefined) {
+		data.title = title;
+	}
+
+	if (description !== undefined) {
 		data.description = description;
+	}
+
+	if (done !== undefined) {
+		data.done = done === "true" || done === true;
 	}
 
 	try {
@@ -211,27 +209,52 @@ export const updateTask = async (req: Request, res: Response) => {
 			return;
 		}
 
-		const filesToDelete = currentTask?.files.filter(
-			(file) => !existingFileIds.includes(file.id)
-		);
+		if (
+			req.body.existingFileIds !== undefined &&
+			req.body.existingFileIds !== ""
+		) {
+			const rawIds = req.body.existingFileIds;
 
-		if (filesToDelete.length > 0) {
-			await deleteMultipleFilesFromS3(filesToDelete.map((f) => f.image));
+			if (Array.isArray(rawIds)) {
+				existingFileIds = rawIds as string[];
+			} else if (typeof rawIds === "string") {
+				try {
+					const parsed = JSON.parse(rawIds);
+					existingFileIds = Array.isArray(parsed) ? parsed : [rawIds];
+				} catch {
+					existingFileIds = [rawIds];
+				}
+			}
+		}
 
-			await prisma.file.deleteMany({
-				where: {
-					id: { in: filesToDelete.map((f) => f.id) },
-				},
+		if (existingFileIds !== undefined) {
+			const cleanIdsToKeep = existingFileIds.map((id) =>
+				id.trim().replace(/^"|"$/g, "")
+			);
+
+			const filesToDelete = currentTask.files.filter(
+				(file) => !cleanIdsToKeep.includes(file.id)
+			);
+
+			if (filesToDelete.length > 0) {
+				await deleteMultipleFilesFromS3(
+					filesToDelete.map((f) => f.image)
+				);
+				await prisma.file.deleteMany({
+					where: { id: { in: filesToDelete.map((f) => f.id) } },
+				});
+			}
+		}
+
+		if (Object.keys(data).length > 0) {
+			await prisma.task.update({
+				where: { id: taskId },
+				data: data,
 			});
 		}
 
-		const updatedTask = await prisma.task.update({
-			where: { id: taskId! },
-			data: data,
-		});
-
 		if (files && files.length !== 0) {
-			await createImageFile(updatedTask.id, files);
+			await createImageFile(taskId, files);
 		}
 
 		const newTask = await prisma.task.findUnique({
