@@ -69,8 +69,8 @@ export const getTaskById = async (req: Request, res: Response) => {
 	const { taskId } = req.params;
 
 	if (!taskId) {
-		res.status(500).json({
-			error: "Internal server error",
+		res.status(400).json({
+			error: "Invalid taskId: taskId is required",
 		});
 		return;
 	}
@@ -82,20 +82,25 @@ export const getTaskById = async (req: Request, res: Response) => {
 		});
 
 		if (!currentTask) {
-			res.status(500).json({
-				error: "Internal server error",
+			res.status(404).json({
+				error: "Task not found",
 			});
 			return;
 		}
 
-		const taskWithUrl = await Promise.all(
+		const filesWithUrls = await Promise.all(
 			currentTask.files.map(async (file) => {
-				const image = await getImageUrl(file.image);
-				return { ...currentTask, files: { ...file, image } };
+				const imageUrl = await getImageUrl(file.image);
+				return { ...file, image: imageUrl };
 			})
 		);
 
-		res.status(200).json(taskWithUrl);
+		const result = {
+			...currentTask,
+			files: filesWithUrls,
+		};
+
+		res.status(200).json(result);
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({
