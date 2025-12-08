@@ -113,33 +113,33 @@ const isFloat = (n: number) => typeof n === "number" && !Number.isInteger(n);
 
 export const getAllTasks = async (req: Request, res: Response) => {
 	try {
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.tasksPerPage as string) || 10;
+		const rawPage = req.query.page as string;
+		const rawLimit = req.query.tasksPerPage as string;
+
+		if (!rawPage || !rawLimit) {
+			return res.status(400).json({
+				error: "Invalid page: page and tasksPerPage are required",
+			});
+		}
+
+		if (
+			!Number.isInteger(Number(rawPage)) ||
+			!Number.isInteger(Number(rawLimit))
+		) {
+			return res.status(400).json({
+				error: "Invalid page: must be an integer (no floats allowed)",
+			});
+		}
+
+		if (Number(rawPage) <= 0 || Number(rawLimit) <= 0) {
+			return res.status(400).json({
+				error: "Invalid page: must be a positive number",
+			});
+		}
+
+		const page = parseInt(rawPage);
+		const limit = parseInt(rawLimit);
 		const skip = (page - 1) * limit;
-
-		if (typeof page !== "number" || typeof limit !== "number") {
-			res.status(400).json({
-				error: "Invalid page: page is required",
-			});
-		}
-
-		if (isFloat(page) || isFloat(limit)) {
-			res.status(400).json({
-				error: "Invalid page: page is required",
-			});
-		}
-
-		if (!page || page <= 0) {
-			res.status(400).json({
-				error: "Invalid page: page is required",
-			});
-		}
-
-		if (!limit || limit <= 0) {
-			res.status(400).json({
-				error: "Invalid page: page is required",
-			});
-		}
 
 		const tasks = await prisma.task.findMany({
 			skip: skip,
