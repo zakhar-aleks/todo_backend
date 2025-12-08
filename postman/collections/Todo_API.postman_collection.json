@@ -3,9 +3,7 @@
     "_postman_id": "51b2013e-4c89-4da0-8c86-8cb41136fc66",
     "name": "Todo_API",
     "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "50108440",
-    "_collection_link": "https://zakhar-aleks-9322998.postman.co/workspace/9e17d0c8-c36d-4a72-847d-085292237b22/collection/50108440-51b2013e-4c89-4da0-8c86-8cb41136fc66?action=share&source=collection_link&creator=50108440"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -21,16 +19,13 @@
               "});",
               ""
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
+            "type": "text/javascript"
           }
         }
       ],
       "id": "3fea1959-c25d-4509-a2b9-eb0b64eed90c",
       "request": {
         "method": "POST",
-        "header": [],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"email\": \"johndoe@gmail.com\",\n    \"name\": \"John Doe\",\n    \"password\": \"password1234\"\n}",
@@ -53,8 +48,7 @@
           ]
         },
         "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
-      },
-      "response": []
+      }
     },
     {
       "name": "Login",
@@ -64,7 +58,6 @@
           "type": "noauth"
         },
         "method": "POST",
-        "header": [],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"email\": \"johndoe@gmail.com\",\n    \"password\": \"password1234\"\n}",
@@ -86,8 +79,7 @@
             ""
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get User",
@@ -128,8 +120,7 @@
             ""
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Users",
@@ -173,8 +164,7 @@
             ""
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Delete User Avatar",
@@ -192,8 +182,7 @@
           }
         ],
         "body": {
-          "mode": "formdata",
-          "formdata": []
+          "mode": "formdata"
         },
         "url": {
           "raw": "{{baseURL}}/api/users/me/avatar/",
@@ -208,8 +197,7 @@
             ""
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get Tasks",
@@ -233,8 +221,33 @@
             "tasks"
           ]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Task By ID",
+      "id": "7b420f17-1350-465a-9e3e-2c7c82af233d",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Access-Token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5cUIAJ92_mbfpq7LlXM0Pt0dh5mymuJ8",
+            "type": "text",
+            "uuid": "d61fee93-5ad1-4833-9161-09839a9ed87a"
+          }
+        ],
+        "url": {
+          "raw": "{{baseURL}}/api/tasks/{taskId}",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "tasks",
+            "{taskId}"
+          ]
+        }
+      }
     },
     {
       "name": "Get All Tasks",
@@ -269,8 +282,7 @@
             }
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Create Tasks",
@@ -317,8 +329,7 @@
             "tasks"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Task",
@@ -368,8 +379,7 @@
             "{taskId}"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Partially Update Task",
@@ -404,8 +414,7 @@
             "{taskId}"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Delete Task",
@@ -440,8 +449,7 @@
             "{taskId}"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Delete File Attachments",
@@ -468,8 +476,7 @@
             "{fileId}"
           ]
         }
-      },
-      "response": []
+      }
     }
   ],
   "auth": {
@@ -512,32 +519,6 @@
       }
     ]
   },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "id": "5284687f-1467-40ca-846b-2e860869a4e2",
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "id": "6a54086c-73ef-42b6-a479-893c585eeaad",
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    }
-  ],
   "variable": [
     {
       "id": "21b49a75-c664-4d1b-b489-93ad605eeda1",
