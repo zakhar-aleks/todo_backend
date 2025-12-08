@@ -109,11 +109,25 @@ export const getTaskById = async (req: Request, res: Response) => {
 	}
 };
 
+const isFloat = (n: number) => typeof n === "number" && !Number.isInteger(n);
+
 export const getAllTasks = async (req: Request, res: Response) => {
 	try {
 		const page = parseInt(req.query.page as string) || 1;
 		const limit = parseInt(req.query.tasksPerPage as string) || 10;
 		const skip = (page - 1) * limit;
+
+		if (typeof page !== "number" || typeof limit !== "number") {
+			res.status(400).json({
+				error: "Invalid page: page is required",
+			});
+		}
+
+		if (isFloat(page) || isFloat(limit)) {
+			res.status(400).json({
+				error: "Invalid page: page is required",
+			});
+		}
 
 		if (!page || page <= 0) {
 			res.status(400).json({
